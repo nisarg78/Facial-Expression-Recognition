@@ -3,12 +3,15 @@ import tensorflow as tf
 import numpy as np
 import cv2
 from PIL import Image
-import os
+
+# Custom object for DepthwiseConv2D
+from tensorflow.keras.layers import DepthwiseConv2D
 
 # Function to load the trained model
 def load_model():
     try:
-        model = tf.keras.models.load_model('nisarg_model.h5')
+        custom_objects = {"DepthwiseConv2D": DepthwiseConv2D}
+        model = tf.keras.models.load_model('nisarg_model.h5', custom_objects=custom_objects)
         return model
     except Exception as e:
         st.error(f"Error loading model: {e}")
@@ -50,10 +53,6 @@ if uploaded_file is not None:
         image = Image.open(uploaded_file)
         st.image(image, caption='Uploaded Image', use_column_width=True)
         
-        # Save the uploaded file temporarily to the disk
-        with open(os.path.join("/tmp", uploaded_file.name), "wb") as f:
-            f.write(uploaded_file.getbuffer())
-
         # OK button
         if st.button("OK"):
             if model is not None:
